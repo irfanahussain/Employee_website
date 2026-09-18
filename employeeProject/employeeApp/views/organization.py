@@ -25,7 +25,7 @@ def department_form_view(request, pk=None):
         if form.is_valid():
             form.save()
             messages.success(request, f"Department {'updated' if pk else 'created'} successfully.")
-            return redirect('organization:department_list')
+            return redirect('employeeApp:department_list')
     else:
         form = DepartmentForm(instance=department)
     return render(request, 'employeeApp/department_form.html', {'form': form, 'department': department})
@@ -55,7 +55,7 @@ def team_form_view(request, pk=None):
         if form.is_valid():
             form.save()
             messages.success(request, f"Team {'updated' if pk else 'created'} successfully.")
-            return redirect('organization:team_list')
+            return redirect('employeeApp:team_list')
     else:
         form = TeamForm(instance=team)
     return render(request, 'employeeApp/team_form.html', {'form': form, 'team': team})

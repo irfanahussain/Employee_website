@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Employee Portal{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'employeeApp/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-people-fill"></i> <span>Employee Portal</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'accounts:redirect_dashboard' %}" class="nav-link {% if 'dashboard' in request.path %}active{% endif %}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            {% if user.can_manage_employees %}
+            <a href="{% url 'employeeApp:department_list' %}" class="nav-link {% if 'departments' in request.path %}active{% endif %}">
+                <i class="bi bi-diagram-3"></i> Departments
+            </a>
+            <a href="{% url 'employeeApp:team_list' %}" class="nav-link {% if 'teams' in request.path %}active{% endif %}">
+                <i class="bi bi-people"></i> Teams
+            </a>
+            {% endif %}
+            <a href="{% url 'employeeApp:employee_list' %}" class="nav-link {% if 'employees' in request.path %}active{% endif %}">
+                <i class="bi bi-person-badge"></i> Employees
+            </a>
+            <a href="{% if user.is_team_lead or user.can_manage_employees %}{% url 'employeeApp:attendance_list' %}{% else %}{% url 'employeeApp:my_attendance' %}{% endif %}" class="nav-link {% if 'attendance' in request.path %}active{% endif %}">
+                <i class="bi bi-calendar-check"></i> Attendance
+            </a>
+            {% if user.can_manage_employees %}
+            <a href="{% url 'employeeApp:leave_type_list' %}" class="nav-link {% if 'leave-types' in request.path %}active{% endif %}">
+                <i class="bi bi-tags"></i> Leave Types
+            </a>
+            <a href="{% url 'employeeApp:all_leave_requests' %}" class="nav-link {% if 'leave/all' in request.path %}active{% endif %}">
+                <i class="bi bi-calendar-week"></i> All Leave Requests
+            </a>
+            {% elif user.is_team_lead %}
+            <a href="{% url 'employeeApp:team_leave_requests' %}" class="nav-link {% if 'leave/team' in request.path %}active{% endif %}">
+                <i class="bi bi-calendar-week"></i> Team Leave Requests
+            </a>
+            {% endif %}
+            <a href="{% url 'employeeApp:my_leave_requests' %}" class="nav-link {% if 'leave/my' in request.path %}active{% endif %}">
+                <i class="bi bi-calendar-plus"></i> My Leave
+            </a>
+            <a href="{% url 'employeeApp:attendance_report' %}" class="nav-link {% if 'reports' in request.path %}active{% endif %}">
+                <i class="bi bi-file-earmark-bar-graph"></i> Reports
+            </a>
+            <a href="{% url 'employeeApp:notification_list' %}" class="nav-link {% if 'notifications' in request.path %}active{% endif %}">
+                <i class="bi bi-bell"></i> Notifications
+                {% if unread_notification_count %}<span class="badge bg-danger rounded-pill ms-1">{{ unread_notification_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'accounts:profile' %}" class="nav-link {% if 'profile' in request.path %}active{% endif %}">
+                <i class="bi bi-person-circle"></i> Profile
+            </a>
+        </nav>
+    </aside>
+
+    <div class="main-col">
+        <header class="topbar">
+            <div class="topbar-role">
+                <span class="badge role-badge">{{ user.get_role_display }}</span>
+            </div>
+            <div class="topbar-user">
+                <span>{{ user.get_full_name|default:user.username }}</span>
+                <a href="{% url 'accounts:password_change' %}" class="btn btn-sm btn-outline-secondary ms-2"><i class="bi bi-key"></i> Change Password</a>
+                <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-outline-danger ms-2"><i class="bi bi-box-arrow-right"></i> Logout</a>
+            </div>
+        </header>
+
+        <main class="content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% else %}
+    {% if messages %}
+        <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% block guest_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -56,7 +56,7 @@ def employee_detail(request, pk):
     if not (user.can_manage_employees() or user == employee.user or
             (user.is_team_lead() and employee.team and employee.team.team_lead == user)):
         messages.error(request, "You do not have permission to view this employee.")
-        return redirect('employees:employee_list')
+        return redirect('employeeApp:employee_list')
     return render(request, 'employeeApp/employee_detail.html', {'employee': employee})
 
 
@@ -68,7 +68,7 @@ def employee_form_view(request, pk=None):
         if form.is_valid():
             form.save()
             messages.success(request, f"Employee {'updated' if pk else 'added'} successfully.")
-            return redirect('employees:employee_list')
+            return redirect('employeeApp:employee_list')
     else:
         form = EmployeeForm(instance=employee, is_edit=bool(pk))
     return render(request, 'employeeApp/employee_form.html', {'form': form, 'employee': employee})
@@ -86,4 +86,4 @@ def employee_toggle_status(request, pk):
     employee.user.save()
     employee.save()
     messages.success(request, f"{employee.full_name} is now {employee.employment_status.lower()}.")
-    return redirect('employees:employee_list')
+    return redirect('employeeApp:employee_list')

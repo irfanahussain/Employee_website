@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Admin / HR Dashboard</h1></div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value">{{ total_employees }}</div><div class="stat-label">Total Employees</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value">{{ active_employees }}</div><div class="stat-label">Active Employees</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-success">{{ todays_present }}</div><div class="stat-label">Today's Present</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-danger">{{ todays_absent }}</div><div class="stat-label">Today's Absent</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-warning">{{ pending_leaves }}</div><div class="stat-label">Pending Leave Requests</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-success">{{ approved_leaves }}</div><div class="stat-label">Approved Leaves</div></div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="table-card">
+            <h6 class="text-muted mb-3">Department-wise Employee Count</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Department</th><th class="text-end">Employees</th></tr></thead>
+                <tbody>
+                {% for name, count in dept_counts %}
+                    <tr><td>{{ name }}</td><td class="text-end">{{ count }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="2" class="text-muted">No departments yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="table-card">
+            <h6 class="text-muted mb-3">This Month's Attendance Summary</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Status</th><th class="text-end">Count</th></tr></thead>
+                <tbody>
+                {% for status, count in status_counts.items %}
+                    <tr><td>{{ status }}</td><td class="text-end">{{ count }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="2" class="text-muted">No records this month.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

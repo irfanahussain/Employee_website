@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Notifications</h1>
+    <a href="{% url 'employeeApp:mark_all_read' %}" class="btn btn-outline-secondary btn-sm">Mark all as read</a>
+</div>
+
+<div class="table-card">
+    <table class="table table-hover align-middle">
+        <thead><tr><th></th><th>Message</th><th>Type</th><th>Date</th><th></th></tr></thead>
+        <tbody>
+        {% for n in page_obj %}
+            <tr class="{% if not n.is_read %}fw-semibold{% endif %}">
+                <td>{% if not n.is_read %}<span class="badge bg-primary">New</span>{% endif %}</td>
+                <td>{{ n.message }}</td>
+                <td>{{ n.get_notification_type_display }}</td>
+                <td>{{ n.created_at|date:"d M Y, H:i" }}</td>
+                <td>
+                    {% if not n.is_read %}
+                    <a href="{% url 'employeeApp:mark_read' n.pk %}" class="btn btn-sm btn-outline-secondary">Mark read</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5" class="text-muted text-center py-4">No notifications yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% include "employeeApp/_pagination.html" %}
+</div>
+{% endblock %}

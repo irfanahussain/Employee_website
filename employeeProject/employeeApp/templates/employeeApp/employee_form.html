@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{% if employee %}Edit{% else %}Add{% endif %} Employee{% endblock %}
+{% block content %}
+<div class="page-header"><h1>{% if employee %}Edit{% else %}Add{% endif %} Employee</h1></div>
+<div class="table-card" style="max-width:640px;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'employeeApp:employee_list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

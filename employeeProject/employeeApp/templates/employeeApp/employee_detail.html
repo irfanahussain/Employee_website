@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ employee.full_name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ employee.full_name }}</h1>
+    {% if user.can_manage_employees %}
+    <a href="{% url 'employeeApp:employee_edit' employee.pk %}" class="btn btn-outline-primary">Edit</a>
+    {% endif %}
+</div>
+
+<div class="table-card" style="max-width:640px;">
+    <table class="table table-borderless table-sm mb-0">
+        <tr><th style="width:200px;">Employee ID</th><td>{{ employee.employee_id }}</td></tr>
+        <tr><th>Email</th><td>{{ employee.email }}</td></tr>
+        <tr><th>Phone</th><td>{{ employee.phone|default:"—" }}</td></tr>
+        <tr><th>Date of Joining</th><td>{{ employee.date_of_joining }}</td></tr>
+        <tr><th>Department</th><td>{{ employee.department|default:"—" }}</td></tr>
+        <tr><th>Team</th><td>{{ employee.team.name|default:"—" }}</td></tr>
+        <tr><th>Designation</th><td>{{ employee.designation }}</td></tr>
+        <tr><th>Reporting Team Lead</th><td>{{ employee.reporting_team_lead.get_full_name|default:"—" }}</td></tr>
+        <tr><th>Employment Status</th><td>
+            {% if employee.employment_status == "ACTIVE" %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
+        </td></tr>
+        <tr><th>Created</th><td>{{ employee.created_at }}</td></tr>
+    </table>
+</div>
+
+<div class="mt-3">
+    <a href="{% url 'employeeApp:employee_list' %}" class="btn btn-outline-secondary">Back to list</a>
+</div>
+{% endblock %}

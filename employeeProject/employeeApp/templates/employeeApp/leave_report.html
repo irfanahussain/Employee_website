@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Leave Report{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Leave Report</h1></div>
+
+<div class="table-card mb-4">
+    <form method="get" class="row g-2">
+        <div class="col-md-2"><input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control" placeholder="From"></div>
+        <div class="col-md-2"><input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control" placeholder="To"></div>
+        <div class="col-md-2">
+            <select name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for d in departments %}<option value="{{ d.pk }}" {% if filters.department == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="leave_type" class="form-select">
+                <option value="">All Types</option>
+                {% for lt in leave_types %}<option value="{{ lt.pk }}" {% if filters.leave_type == lt.pk|stringformat:"s" %}selected{% endif %}>{{ lt.name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">All Status</option>
+                {% for value, label in statuses %}<option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><button type="submit" class="btn btn-outline-secondary w-100">Filter</button></div>
+    </form>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ requests|length }}</div><div class="stat-label">Matching Requests</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value text-success">{{ total_leave_days }}</div><div class="stat-label">Total Approved Days</div></div></div>
+</div>
+
+<div class="table-card">
+    <table class="table table-hover align-middle">
+        <thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for r in requests %}
+            <tr>
+                <td>{{ r.employee.full_name }}</td>
+                <td>{{ r.employee.department|default:"—" }}</td>
+                <td>{{ r.leave_type.name }}</td>
+                <td>{{ r.from_date }}</td>
+                <td>{{ r.to_date }}</td>
+                <td>{{ r.number_of_days }}</td>
+                <td>
+                    {% if r.status == "APPROVED" %}<span class="badge bg-success">Approved</span>
+                    {% elif r.status == "REJECTED" %}<span class="badge bg-danger">Rejected</span>
+                    {% elif r.status == "CANCELLED" %}<span class="badge bg-secondary">Cancelled</span>
+                    {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7" class="text-muted text-center py-4">No requests match these filters.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p class="text-muted small mt-2 mb-0">Showing up to 200 most recent matching requests.</p>
+</div>
+{% endblock %}

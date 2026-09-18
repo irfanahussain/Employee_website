@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Team Dashboard{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Team Lead Dashboard</h1></div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value">{{ team_members_count }}</div><div class="stat-label">Team Members</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value">{{ todays_attendance.count }}</div><div class="stat-label">Today's Team Attendance</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-warning">{{ pending_team_leaves.count }}</div><div class="stat-label">Pending Team Leave Requests</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-success">{{ approved_team_leaves_count }}</div><div class="stat-label">Approved Team Leaves</div></div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="table-card">
+            <h6 class="text-muted mb-3">Today's Team Attendance</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Employee</th><th>Check In</th><th>Check Out</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for a in todays_attendance %}
+                    <tr>
+                        <td>{{ a.employee.full_name }}</td>
+                        <td>{{ a.check_in|default:"—" }}</td>
+                        <td>{{ a.check_out|default:"—" }}</td>
+                        <td>{{ a.get_status_display }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-muted">No attendance marked yet today.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="table-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-muted mb-0">Pending Team Leave Requests</h6>
+                <a href="{% url 'employeeApp:team_leave_requests' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <table class="table table-sm">
+                <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th></th></tr></thead>
+                <tbody>
+                {% for r in pending_team_leaves %}
+                    <tr>
+                        <td>{{ r.employee.full_name }}</td>
+                        <td>{{ r.leave_type.name }}</td>
+                        <td>{{ r.from_date }} – {{ r.to_date }}</td>
+                        <td><a href="{% url 'employeeApp:decide_leave' r.pk %}" class="btn btn-xs btn-primary btn-sm">Decide</a></td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-muted">No pending requests.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

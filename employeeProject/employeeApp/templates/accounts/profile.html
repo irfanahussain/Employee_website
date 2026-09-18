@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="mb-3">My Profile</h4>
+                {% if user.profile_image %}
+                <img src="{{ user.profile_image.url }}" class="rounded-circle mb-3" width="100" height="100" style="object-fit:cover;">
+                {% endif %}
+                <table class="table table-borderless">
+                    <tr><th>Employee ID</th><td>{{ user.employee_profile.employee_id|default:"-" }}</td></tr>
+                    <tr><th>Department</th><td>{{ user.employee_profile.department|default:"-" }}</td></tr>
+                    <tr><th>Designation</th><td>{{ user.employee_profile.designation|default:"-" }}</td></tr>
+                    <tr><th>Date of Joining</th><td>{{ user.employee_profile.date_of_joining|default:"-" }}</td></tr>
+                    <tr><th>Role</th><td>{{ user.get_role_display }}</td></tr>
+                </table>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

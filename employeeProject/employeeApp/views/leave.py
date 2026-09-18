@@ -26,7 +26,7 @@ def leave_type_form_view(request, pk=None):
         if form.is_valid():
             form.save()
             messages.success(request, f"Leave type {'updated' if pk else 'created'} successfully.")
-            return redirect('leave:leave_type_list')
+            return redirect('employeeApp:leave_type_list')
     else:
         form = LeaveTypeForm(instance=leave_type)
     return render(request, 'employeeApp/leave_type_form.html', {'form': form, 'leave_type': leave_type})
@@ -37,7 +37,7 @@ def leave_type_toggle(request, pk):
     leave_type = get_object_or_404(LeaveType, pk=pk)
     leave_type.is_active = not leave_type.is_active
     leave_type.save()
-    return redirect('leave:leave_type_list')
+    return redirect('employeeApp:leave_type_list')
 
 
 # ---------- Employee: apply & view own ----------
@@ -88,7 +88,7 @@ def apply_leave(request):
                         notification_type='LEAVE_REQUEST',
                         related_object_id=leave_request.id,
                     )
-                return redirect('leave:my_leave_requests')
+                return redirect('employeeApp:my_leave_requests')
     else:
         form = LeaveRequestForm()
     return render(request, 'employeeApp/apply_leave.html', {'form': form})
@@ -100,7 +100,7 @@ def cancel_leave(request, pk):
     leave_request = get_object_or_404(LeaveRequest, pk=pk, employee=employee)
     if leave_request.status not in (LeaveRequest.Status.PENDING, LeaveRequest.Status.APPROVED):
         messages.error(request, "This request cannot be cancelled.")
-        return redirect('leave:my_leave_requests')
+        return redirect('employeeApp:my_leave_requests')
 
     if leave_request.status == LeaveRequest.Status.APPROVED:
         balance = leave_request.get_balance()
@@ -111,7 +111,7 @@ def cancel_leave(request, pk):
     leave_request.status = LeaveRequest.Status.CANCELLED
     leave_request.save()
     messages.success(request, "Leave request cancelled.")
-    return redirect('leave:my_leave_requests')
+    return redirect('employeeApp:my_leave_requests')
 
 
 # ---------- Team Lead: team requests ----------
@@ -119,7 +119,7 @@ def cancel_leave(request, pk):
 @login_required
 def team_leave_requests(request):
     if not request.user.is_team_lead():
-        return redirect('leave:my_leave_requests')
+        return redirect('employeeApp:my_leave_requests')
     requests_qs = LeaveRequest.objects.filter(
         employee__team__team_lead=request.user
     ).select_related('employee', 'leave_type').order_by('-created_at')
@@ -143,7 +143,7 @@ def decide_leave(request, pk):
     is_team_lead_for_this = user.is_team_lead() and leave_request.employee.team and leave_request.employee.team.team_lead == user
     if not (user.can_manage_employees() or is_team_lead_for_this):
         messages.error(request, "You do not have permission to decide on this request.")
-        return redirect('leave:my_leave_requests')
+        return redirect('employeeApp:my_leave_requests')
 
     if request.method == 'POST':
         form = LeaveDecisionForm(request.POST)
@@ -170,7 +170,7 @@ def decide_leave(request, pk):
                 related_object_id=leave_request.id,
             )
             messages.success(request, f"Leave request {decision.lower()}.")
-            return redirect('leave:team_leave_requests' if is_team_lead_for_this and not user.can_manage_employees()
+            return redirect('employeeApp:team_leave_requests' if is_team_lead_for_this and not user.can_manage_employees()
                              else 'leave:all_leave_requests')
     else:
         form = LeaveDecisionForm()

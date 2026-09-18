@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Decide Leave Request{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Decide Leave Request</h1></div>
+
+<div class="table-card mb-4" style="max-width:560px;">
+    <table class="table table-sm table-borderless mb-0">
+        <tr><th style="width:160px;">Employee</th><td>{{ leave_request.employee.full_name }}</td></tr>
+        <tr><th>Leave Type</th><td>{{ leave_request.leave_type.name }}</td></tr>
+        <tr><th>From</th><td>{{ leave_request.from_date }}</td></tr>
+        <tr><th>To</th><td>{{ leave_request.to_date }}</td></tr>
+        <tr><th>Days</th><td>{{ leave_request.number_of_days }}</td></tr>
+        <tr><th>Reason</th><td>{{ leave_request.reason }}</td></tr>
+    </table>
+</div>
+
+<div class="table-card" style="max-width:560px;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Submit Decision</button>
+    </form>
+</div>
+{% endblock %}

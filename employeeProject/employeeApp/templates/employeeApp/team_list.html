@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Teams{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Teams</h1>
+    <a href="{% url 'employeeApp:team_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Team</a>
+</div>
+
+<div class="table-card">
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by name...">
+        </div>
+        <div class="col-md-3">
+            <select name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for d in departments %}
+                    <option value="{{ d.pk }}" {% if dept_id == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
+        </div>
+    </form>
+
+    <table class="table table-hover align-middle">
+        <thead><tr><th>Name</th><th>Department</th><th>Team Lead</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for team in page_obj %}
+            <tr>
+                <td>{{ team.name }}</td>
+                <td>{{ team.department.name }}</td>
+                <td>{% if team.team_lead %}{{ team.team_lead.get_full_name|default:team.team_lead.username }}{% else %}—{% endif %}</td>
+                <td>{% if team.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+                <td><a href="{% url 'employeeApp:team_edit' team.pk %}" class="btn btn-sm btn-outline-primary">Edit</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5" class="text-muted text-center py-4">No teams found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% include "employeeApp/_pagination.html" %}
+</div>
+{% endblock %}

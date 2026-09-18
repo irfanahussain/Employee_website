@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Attendance{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Attendance</h1></div>
+
+<div class="table-card">
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-2">
+            <input type="date" name="date" value="{{ filters.date }}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <input type="month" name="month" value="{{ filters.month }}" class="form-control" placeholder="Month">
+        </div>
+        <div class="col-md-2">
+            <select name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for d in departments %}
+                    <option value="{{ d.pk }}" {% if filters.department == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">All Status</option>
+                {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
+        </div>
+    </form>
+
+    <table class="table table-hover align-middle">
+        <thead><tr><th>Date</th><th>Employee</th><th>Check In</th><th>Check Out</th><th>Working Hours</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for a in page_obj %}
+            <tr>
+                <td>{{ a.date }}</td>
+                <td>{{ a.employee.full_name }}</td>
+                <td>{{ a.check_in|default:"—" }}</td>
+                <td>{{ a.check_out|default:"—" }}</td>
+                <td>{{ a.working_hours }}</td>
+                <td>{{ a.get_status_display }}</td>
+                <td>
+                    {% if user.can_manage_employees and not a.is_locked %}
+                    <a href="{% url 'employeeApp:lock_attendance' a.pk %}" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Lock this record?');">Lock</a>
+                    {% elif a.is_locked %}
+                    <span class="badge bg-secondary"><i class="bi bi-lock-fill"></i> Locked</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7" class="text-muted text-center py-4">No attendance records found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% include "employeeApp/_pagination.html" %}
+</div>
+{% endblock %}

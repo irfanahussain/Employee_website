@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<div class="page-header"><h1>My Dashboard</h1></div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">
+                {% if today_record %}{{ today_record.get_status_display }}{% else %}Not marked{% endif %}
+            </div>
+            <div class="stat-label">Today's Attendance</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">
+                {% if today_record.check_in and not today_record.check_out %}
+                    <span class="text-success">Checked In</span>
+                {% elif today_record.check_out %}
+                    <span class="text-muted">Checked Out</span>
+                {% else %}
+                    <span class="text-danger">Not Checked In</span>
+                {% endif %}
+            </div>
+            <div class="stat-label">Current Status</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-warning">{{ pending_requests.count }}</div><div class="stat-label">Pending Leave Requests</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">
+                {% if not today_record.check_in %}
+                    <a href="{% url 'employeeApp:check_in' %}" class="btn btn-sm btn-primary">Check In</a>
+                {% elif not today_record.check_out %}
+                    <a href="{% url 'employeeApp:check_out' %}" class="btn btn-sm btn-outline-primary">Check Out</a>
+                {% else %}
+                    <span class="text-muted small">Done for today</span>
+                {% endif %}
+            </div>
+            <div class="stat-label">Quick Action</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="table-card">
+            <h6 class="text-muted mb-3">Leave Balance</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Leave Type</th><th class="text-end">Allocated</th><th class="text-end">Used</th><th class="text-end">Remaining</th></tr></thead>
+                <tbody>
+                {% for b in leave_balances %}
+                    <tr>
+                        <td>{{ b.leave_type.name }}</td>
+                        <td class="text-end">{{ b.allocated }}</td>
+                        <td class="text-end">{{ b.used }}</td>
+                        <td class="text-end fw-semibold">{{ b.remaining }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-muted">No leave balance set up yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="table-card">
+            <h6 class="text-muted mb-3">Recent Attendance</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for a in recent_attendance %}
+                    <tr><td>{{ a.date }}</td><td>{{ a.check_in|default:"—" }}</td><td>{{ a.check_out|default:"—" }}</td><td>{{ a.get_status_display }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-muted">No records yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="table-card">
+            <h6 class="text-muted mb-3">Recent Leave History</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Type</th><th>Dates</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for r in recent_leave_history %}
+                    <tr><td>{{ r.leave_type.name }}</td><td>{{ r.from_date }} – {{ r.to_date }}</td><td>{{ r.get_status_display }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="3" class="text-muted">No leave history yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

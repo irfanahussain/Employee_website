@@ -22,7 +22,7 @@ def check_in(request):
     existing = Attendance.objects.filter(employee=employee, date=today).first()
     if existing and existing.check_in:
         messages.error(request, "You have already checked in today.")
-        return redirect('attendance:my_attendance')
+        return redirect('employeeApp:my_attendance')
 
     status = Attendance.Status.LATE if now_time > STANDARD_START_TIME else Attendance.Status.PRESENT
     if existing:
@@ -32,7 +32,7 @@ def check_in(request):
     else:
         Attendance.objects.create(employee=employee, date=today, check_in=now_time, status=status)
     messages.success(request, f"Checked in at {now_time.strftime('%I:%M %p')}.")
-    return redirect('attendance:my_attendance')
+    return redirect('employeeApp:my_attendance')
 
 
 @login_required
@@ -44,19 +44,19 @@ def check_out(request):
     record = Attendance.objects.filter(employee=employee, date=today).first()
     if not record or not record.check_in:
         messages.error(request, "You must check in before checking out.")
-        return redirect('attendance:my_attendance')
+        return redirect('employeeApp:my_attendance')
     if record.check_out:
         messages.error(request, "You have already checked out today.")
-        return redirect('attendance:my_attendance')
+        return redirect('employeeApp:my_attendance')
     if now_time <= record.check_in:
         messages.error(request, "Check-out time cannot be earlier than check-in time.")
-        return redirect('attendance:my_attendance')
+        return redirect('employeeApp:my_attendance')
 
     record.check_out = now_time
     record.calculate_working_hours()
     record.save()
     messages.success(request, f"Checked out at {now_time.strftime('%I:%M %p')}. Working hours: {record.working_hours}")
-    return redirect('attendance:my_attendance')
+    return redirect('employeeApp:my_attendance')
 
 
 @login_required
@@ -82,7 +82,7 @@ def attendance_list(request):
         records = Attendance.objects.filter(employee__team__team_lead=user).select_related(
             'employee', 'employee__team', 'employee__team__department')
     else:
-        return redirect('attendance:my_attendance')
+        return redirect('employeeApp:my_attendance')
 
     date_filter = request.GET.get('date')
     employee_id = request.GET.get('employee')
@@ -126,4 +126,4 @@ def lock_attendance(request, pk):
     record.is_locked = True
     record.save()
     messages.success(request, "Attendance record locked.")
-    return redirect('attendance:attendance_list')
+    return redirect('employeeApp:attendance_list')

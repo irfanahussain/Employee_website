@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{% if leave_type %}Edit{% else %}Add{% endif %} Leave Type{% endblock %}
+{% block content %}
+<div class="page-header"><h1>{% if leave_type %}Edit{% else %}Add{% endif %} Leave Type</h1></div>
+<div class="table-card" style="max-width:480px;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'employeeApp:leave_type_list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
