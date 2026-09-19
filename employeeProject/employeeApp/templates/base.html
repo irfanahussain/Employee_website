@@ -49,9 +49,11 @@
                 <i class="bi bi-calendar-week"></i> Team Leave Requests
             </a>
             {% endif %}
+            {% if user.employee_profile %}
             <a href="{% url 'employeeApp:my_leave_requests' %}" class="nav-link {% if 'leave/my' in request.path %}active{% endif %}">
                 <i class="bi bi-calendar-plus"></i> My Leave
             </a>
+            {% endif %}
             <a href="{% url 'employeeApp:attendance_report' %}" class="nav-link {% if 'reports' in request.path %}active{% endif %}">
                 <i class="bi bi-file-earmark-bar-graph"></i> Reports
             </a>

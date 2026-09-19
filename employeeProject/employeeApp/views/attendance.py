@@ -9,13 +9,16 @@ from accounts.decorators import admin_hr_required
 from employeeApp.models import Employee
 from employeeApp.models import Department
 from employeeApp.models import Attendance
+from employeeApp.utils import require_own_employee
 
 STANDARD_START_TIME = time(9, 30)  # after this, marked Late
 
 
 @login_required
 def check_in(request):
-    employee = get_object_or_404(Employee, user=request.user)
+    employee = require_own_employee(request)
+    if employee is None:
+        return redirect('accounts:redirect_dashboard')
     today = timezone.localdate()
     now_time = timezone.localtime().time()
 
@@ -37,7 +40,9 @@ def check_in(request):
 
 @login_required
 def check_out(request):
-    employee = get_object_or_404(Employee, user=request.user)
+    employee = require_own_employee(request)
+    if employee is None:
+        return redirect('accounts:redirect_dashboard')
     today = timezone.localdate()
     now_time = timezone.localtime().time()
 
@@ -61,7 +66,9 @@ def check_out(request):
 
 @login_required
 def my_attendance(request):
-    employee = get_object_or_404(Employee, user=request.user)
+    employee = require_own_employee(request)
+    if employee is None:
+        return redirect('accounts:redirect_dashboard')
     today = timezone.localdate()
     today_record = Attendance.objects.filter(employee=employee, date=today).first()
     history = Attendance.objects.filter(employee=employee).order_by('-date')

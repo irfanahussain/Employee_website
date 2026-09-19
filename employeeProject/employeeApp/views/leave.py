@@ -8,6 +8,7 @@ from employeeApp.models import Employee
 from employeeApp.models import Notification
 from employeeApp.models import LeaveType, LeaveBalance, LeaveRequest
 from employeeApp.forms import LeaveTypeForm, LeaveRequestForm, LeaveDecisionForm
+from employeeApp.utils import require_own_employee
 
 
 # ---------- Leave Types (Admin/HR) ----------
@@ -44,7 +45,9 @@ def leave_type_toggle(request, pk):
 
 @login_required
 def my_leave_requests(request):
-    employee = get_object_or_404(Employee, user=request.user)
+    employee = require_own_employee(request)
+    if employee is None:
+        return redirect('accounts:redirect_dashboard')
     requests_qs = LeaveRequest.objects.filter(employee=employee).select_related('leave_type')
     balances = LeaveBalance.objects.filter(employee=employee, year=timezone.now().year).select_related('leave_type')
     paginator = Paginator(requests_qs, 15)
@@ -54,7 +57,9 @@ def my_leave_requests(request):
 
 @login_required
 def apply_leave(request):
-    employee = get_object_or_404(Employee, user=request.user)
+    employee = require_own_employee(request)
+    if employee is None:
+        return redirect('accounts:redirect_dashboard')
     if request.method == 'POST':
         form = LeaveRequestForm(request.POST)
         if form.is_valid():
@@ -96,7 +101,9 @@ def apply_leave(request):
 
 @login_required
 def cancel_leave(request, pk):
-    employee = get_object_or_404(Employee, user=request.user)
+    employee = require_own_employee(request)
+    if employee is None:
+        return redirect('accounts:redirect_dashboard')
     leave_request = get_object_or_404(LeaveRequest, pk=pk, employee=employee)
     if leave_request.status not in (LeaveRequest.Status.PENDING, LeaveRequest.Status.APPROVED):
         messages.error(request, "This request cannot be cancelled.")

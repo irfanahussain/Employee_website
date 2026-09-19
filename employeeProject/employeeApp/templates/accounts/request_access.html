@@ -1,0 +1,14 @@
+{% extends 'accounts/auth_base.html' %}
+{% block title %}Request Access{% endblock %}
+{% block auth_content %}
+<h1 style="font-size:2rem;">Need an account?</h1>
+<p class="subtitle">
+    Employee accounts are created by your organization's Admin or HR team —
+    there's no public sign-up for this system. Please contact your HR
+    department or system administrator and ask them to add you as an employee;
+    they'll set up your login for you.
+</p>
+<div class="auth-links">
+    <a href="{% url 'accounts:login' %}"><i class="bi bi-arrow-left"></i> Back to Sign In</a>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from accounts.decorators import admin_hr_required, role_required
@@ -6,6 +6,7 @@ from employeeApp.models import Employee
 from employeeApp.models import Attendance
 from employeeApp.models import LeaveRequest, LeaveBalance
 from employeeApp.models import Department
+from employeeApp.utils import require_own_employee
 
 
 @admin_hr_required
@@ -55,7 +56,9 @@ def team_lead_dashboard(request):
 
 @login_required
 def employee_dashboard(request):
-    employee = get_object_or_404(Employee, user=request.user)
+    employee = require_own_employee(request)
+    if employee is None:
+        return redirect('accounts:redirect_dashboard')
     today = timezone.localdate()
     today_record = Attendance.objects.filter(employee=employee, date=today).first()
     leave_balances = LeaveBalance.objects.filter(employee=employee, year=today.year).select_related('leave_type')

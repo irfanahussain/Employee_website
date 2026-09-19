@@ -1,10 +1,11 @@
+from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from .forms import LoginForm, ProfileForm
+from .forms import LoginForm, ProfileForm, StyledPasswordResetForm, StyledSetPasswordForm
 from accounts.models import User
 
 
@@ -16,11 +17,29 @@ def login_view(request):
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request, user)
-            return redirect('accounts:redirect_dashboard')
+            intended_role = form.cleaned_data.get('intended_role')
+            if intended_role and user.role != intended_role:
+                form.add_error(
+                    None,
+                    f"This account is registered as {user.get_role_display()}, "
+                    f"not {dict(User.Role.choices).get(intended_role, intended_role)}. "
+                    f"Please select the correct tab and try again."
+                )
+            else:
+                login(request, user)
+                if form.cleaned_data.get('remember_me'):
+                    request.session.set_expiry(settings.REMEMBER_ME_SESSION_AGE)
+                else:
+                    request.session.set_expiry(0)  # expires when the browser is closed
+                return redirect('accounts:redirect_dashboard')
     else:
         form = LoginForm()
-    return render(request, 'accounts/login.html', {'form': form})
+    return render(request, 'accounts/login.html', {'form': form, 'roles': User.Role})
+
+
+def request_access_view(request):
+    """'Don't have an account?' — accounts are provisioned by Admin/HR, not self-serve."""
+    return render(request, 'accounts/request_access.html')
 
 
 @login_required

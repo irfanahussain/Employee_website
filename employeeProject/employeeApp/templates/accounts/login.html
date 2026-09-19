@@ -1,30 +1,102 @@
-{% extends 'base.html' %}
+{% extends 'accounts/auth_base.html' %}
 {% block title %}Login{% endblock %}
-{% block guest_content %}
-<div class="container">
-<div class="row justify-content-center">
-    <div class="col-md-4 mt-5">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h4 class="card-title mb-3 text-center">Employee Login</h4>
-                {% if form.non_field_errors %}
-                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-                {% endif %}
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        {{ form.username }}
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        {{ form.password }}
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
-                </form>
-            </div>
-        </div>
+{% block auth_content %}
+<h1>Sign In</h1>
+<p class="subtitle">Welcome back! Select your role and sign in.</p>
+
+<div class="role-tabs" id="role-tabs">
+    <button type="button" class="role-tab active" data-role="ADMIN">Admin</button>
+    <button type="button" class="role-tab" data-role="HR">HR</button>
+    <button type="button" class="role-tab" data-role="TEAM_LEAD">Team Lead</button>
+    <button type="button" class="role-tab" data-role="EMPLOYEE">Employee</button>
+</div>
+
+{% if form.non_field_errors %}
+<div class="alert-danger-dark mb-3">
+    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+</div>
+{% endif %}
+
+<form method="post" id="login-form" novalidate>
+    {% csrf_token %}
+    {{ form.intended_role }}
+
+    <div class="mb-3">
+        <label class="form-label" for="{{ form.username.id_for_label }}">Email / Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+        <div class="invalid-feedback-block">{{ form.username.errors|striptags }}</div>
+        {% endif %}
     </div>
+
+    <div class="mb-1">
+        <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+        <div class="password-toggle-wrap">
+            {{ form.password }}
+            <button type="button" class="password-toggle-btn" id="toggle-password" aria-label="Show or hide password" tabindex="-1">
+                <i class="bi bi-eye" id="toggle-password-icon"></i>
+            </button>
+        </div>
+        {% if form.password.errors %}
+        <div class="invalid-feedback-block">{{ form.password.errors|striptags }}</div>
+        {% endif %}
+    </div>
+
+    <a href="{% url 'accounts:password_reset' %}" class="forgot-link">Forgot Password?</a>
+
+    <div class="form-check mb-4">
+        {{ form.remember_me }}
+        <label class="form-check-label" for="{{ form.remember_me.id_for_label }}">
+            Remember me on this device
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-login w-100" id="login-submit-btn">
+        <span id="login-btn-text">Sign In</span>
+        <span id="login-btn-spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+    </button>
+</form>
+
+<div class="auth-links">
+    Don't have an account? <a href="{% url 'accounts:request_access' %}">Sign Up</a>
 </div>
-</div>
+
+<script>
+    (function () {
+        var tabs = document.querySelectorAll('.role-tab');
+        var roleInput = document.getElementById('{{ form.intended_role.id_for_label }}');
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                tabs.forEach(function (t) { t.classList.remove('active'); });
+                tab.classList.add('active');
+                if (roleInput) { roleInput.value = tab.dataset.role; }
+            });
+        });
+        if (roleInput && !roleInput.value) { roleInput.value = 'ADMIN'; }
+
+        var toggleBtn = document.getElementById('toggle-password');
+        var toggleIcon = document.getElementById('toggle-password-icon');
+        var passwordInput = document.getElementById('id_password');
+        if (toggleBtn && passwordInput) {
+            toggleBtn.addEventListener('click', function () {
+                var isHidden = passwordInput.type === 'password';
+                passwordInput.type = isHidden ? 'text' : 'password';
+                toggleIcon.classList.toggle('bi-eye', !isHidden);
+                toggleIcon.classList.toggle('bi-eye-slash', isHidden);
+            });
+        }
+
+        var form = document.getElementById('login-form');
+        var submitBtn = document.getElementById('login-submit-btn');
+        var btnText = document.getElementById('login-btn-text');
+        var spinner = document.getElementById('login-btn-spinner');
+        if (form) {
+            form.addEventListener('submit', function () {
+                submitBtn.disabled = true;
+                btnText.textContent = 'Signing in\u2026';
+                spinner.classList.remove('d-none');
+            });
+        }
+    })();
+</script>
 {% endblock %}
