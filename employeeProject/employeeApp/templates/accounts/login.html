@@ -2,14 +2,7 @@
 {% block title %}Login{% endblock %}
 {% block auth_content %}
 <h1>Sign In</h1>
-<p class="subtitle">Welcome back! Select your role and sign in.</p>
-
-<div class="role-tabs" id="role-tabs">
-    <button type="button" class="role-tab active" data-role="ADMIN">Admin</button>
-    <button type="button" class="role-tab" data-role="HR">HR</button>
-    <button type="button" class="role-tab" data-role="TEAM_LEAD">Team Lead</button>
-    <button type="button" class="role-tab" data-role="EMPLOYEE">Employee</button>
-</div>
+<p class="subtitle">Welcome back! Sign in to continue.</p>
 
 {% if form.non_field_errors %}
 <div class="alert-danger-dark mb-3">
@@ -19,7 +12,6 @@
 
 <form method="post" id="login-form" novalidate>
     {% csrf_token %}
-    {{ form.intended_role }}
 
     <div class="mb-3">
         <label class="form-label" for="{{ form.username.id_for_label }}">Email / Username</label>
@@ -63,17 +55,6 @@
 
 <script>
     (function () {
-        var tabs = document.querySelectorAll('.role-tab');
-        var roleInput = document.getElementById('{{ form.intended_role.id_for_label }}');
-        tabs.forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                tabs.forEach(function (t) { t.classList.remove('active'); });
-                tab.classList.add('active');
-                if (roleInput) { roleInput.value = tab.dataset.role; }
-            });
-        });
-        if (roleInput && !roleInput.value) { roleInput.value = 'ADMIN'; }
-
         var toggleBtn = document.getElementById('toggle-password');
         var toggleIcon = document.getElementById('toggle-password-icon');
         var passwordInput = document.getElementById('id_password');

@@ -9,19 +9,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.11/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.5.1/css/responsive.bootstrap5.min.css">
     <link rel="stylesheet" href="{% static 'employeeApp/style.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
 {% if user.is_authenticated %}
 <div class="app-shell">
-    <aside class="sidebar">
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <aside class="sidebar" id="app-sidebar" aria-label="Main navigation">
         <div class="sidebar-brand">
-            <i class="bi bi-people-fill"></i> <span>Employee Portal</span>
+            <span class="brand-mark"><i class="bi bi-people-fill"></i></span>
+            <span>Employee Portal</span>
         </div>
         <nav class="sidebar-nav">
             <a href="{% url 'accounts:redirect_dashboard' %}" class="nav-link {% if 'dashboard' in request.path %}active{% endif %}">
-                <i class="bi bi-speedometer2"></i> Dashboard
+                <i class="bi bi-grid-1x2"></i> Dashboard
             </a>
             {% if user.can_manage_employees %}
             <a href="{% url 'employeeApp:department_list' %}" class="nav-link {% if 'departments' in request.path %}active{% endif %}">
@@ -34,7 +38,7 @@
             <a href="{% url 'employeeApp:employee_list' %}" class="nav-link {% if 'employees' in request.path %}active{% endif %}">
                 <i class="bi bi-person-badge"></i> Employees
             </a>
-            <a href="{% if user.is_team_lead or user.can_manage_employees %}{% url 'employeeApp:attendance_list' %}{% else %}{% url 'employeeApp:my_attendance' %}{% endif %}" class="nav-link {% if 'attendance' in request.path %}active{% endif %}">
+            <a href="{% if user.is_team_lead or user.can_manage_employees %}{% url 'employeeApp:attendance_list' %}{% else %}{% url 'employeeApp:my_attendance' %}{% endif %}" class="nav-link {% if 'attendance' in request.path and 'reports' not in request.path %}active{% endif %}">
                 <i class="bi bi-calendar-check"></i> Attendance
             </a>
             {% if user.can_manage_employees %}
@@ -50,7 +54,7 @@
             </a>
             {% endif %}
             {% if user.employee_profile %}
-            <a href="{% url 'employeeApp:my_leave_requests' %}" class="nav-link {% if 'leave/my' in request.path %}active{% endif %}">
+            <a href="{% url 'employeeApp:my_leave_requests' %}" class="nav-link {% if 'leave/my' in request.path or 'leave/apply' in request.path %}active{% endif %}">
                 <i class="bi bi-calendar-plus"></i> My Leave
             </a>
             {% endif %}
@@ -59,9 +63,9 @@
             </a>
             <a href="{% url 'employeeApp:notification_list' %}" class="nav-link {% if 'notifications' in request.path %}active{% endif %}">
                 <i class="bi bi-bell"></i> Notifications
-                {% if unread_notification_count %}<span class="badge bg-danger rounded-pill ms-1">{{ unread_notification_count }}</span>{% endif %}
+                {% if unread_notification_count %}<span class="nav-count">{{ unread_notification_count }}</span>{% endif %}
             </a>
-            <a href="{% url 'accounts:profile' %}" class="nav-link {% if 'profile' in request.path %}active{% endif %}">
+            <a href="{% url 'accounts:profile' %}" class="nav-link {% if 'profile' in request.path or 'password-change' in request.path %}active{% endif %}">
                 <i class="bi bi-person-circle"></i> Profile
             </a>
         </nav>
@@ -70,12 +74,17 @@
     <div class="main-col">
         <header class="topbar">
             <div class="topbar-role">
+                <button type="button" class="sidebar-toggle-btn d-lg-none" id="sidebar-toggle" aria-label="Toggle menu" aria-controls="app-sidebar" aria-expanded="false">
+                    <i class="bi bi-list"></i>
+                </button>
                 <span class="badge role-badge">{{ user.get_role_display }}</span>
             </div>
             <div class="topbar-user">
-                <span>{{ user.get_full_name|default:user.username }}</span>
-                <a href="{% url 'accounts:password_change' %}" class="btn btn-sm btn-outline-secondary ms-2"><i class="bi bi-key"></i> Change Password</a>
-                <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-outline-danger ms-2"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                <div class="user-chip">
+                    <span class="avatar">{% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="">{% else %}{{ user.get_full_name|default:user.username|slice:":1"|upper }}{% endif %}</span>
+                    <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                </div>
+                <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-outline-secondary btn-logout" aria-label="Log out"><i class="bi bi-box-arrow-right"></i><span class="d-none d-sm-inline ms-1">Logout</span></a>
             </div>
         </header>
 
@@ -94,7 +103,7 @@
 </div>
 {% else %}
     {% if messages %}
-        <div class="container mt-3">
+        <div class="guest-alerts">
         {% for message in messages %}
             <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
                 {{ message }}
@@ -107,6 +116,64 @@
 {% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.11/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.11/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive@2.5.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.5.1/js/responsive.bootstrap5.min.js"></script>
+<script>
+    // Any table marked class="dt-table" gets search, sort, pagination and a
+    // page-length control for free. Server-side filter forms (department,
+    // status, date range, etc.) keep working as-is; DataTables only enhances
+    // the rows already rendered on the page. Columns marked class="no-sort"
+    // (action buttons, checkboxes) are excluded from sorting.
+    (function () {
+        if (typeof $ === 'undefined' || !$.fn.DataTable) { return; }
+        $('.dt-table').each(function () {
+            var $table = $(this);
+            if ($table.find('tbody tr td').length === 0) { return; } // nothing to enhance on an empty state
+            if ($table.find('tbody td[colspan]').length) { return; } // "no records" row: leave the plain table alone
+            var noSortCols = [];
+            $table.find('thead th').each(function (i) {
+                if ($(this).hasClass('no-sort')) { noSortCols.push(i); }
+            });
+            $table.DataTable({
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50, 100],
+                responsive: true,
+                order: [],
+                columnDefs: noSortCols.length ? [{ targets: noSortCols, orderable: false }] : [],
+                language: { search: '', searchPlaceholder: 'Search…' },
+                drawCallback: function () {
+                    // A pager with a single page is just noise
+                    var pages = this.api().page.info().pages;
+                    $(this).closest('.dataTables_wrapper').find('.dataTables_paginate').toggle(pages > 1);
+                },
+            });
+        });
+    })();
+</script>
+<script>
+    (function () {
+        var toggleBtn = document.getElementById('sidebar-toggle');
+        var sidebar = document.getElementById('app-sidebar');
+        var overlay = document.getElementById('sidebar-overlay');
+        function setOpen(open) {
+            if (sidebar) { sidebar.classList.toggle('sidebar-open', open); }
+            if (overlay) { overlay.classList.toggle('show', open); }
+            if (toggleBtn) { toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+        }
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener('click', function () {
+                setOpen(!sidebar.classList.contains('sidebar-open'));
+            });
+        }
+        if (overlay) { overlay.addEventListener('click', function () { setOpen(false); }); }
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { setOpen(false); }
+        });
+    })();
+</script>
 {% block extra_scripts %}{% endblock %}
 </body>
 </html>

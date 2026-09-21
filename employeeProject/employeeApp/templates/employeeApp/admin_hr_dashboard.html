@@ -1,26 +1,50 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="page-header"><h1>Admin / HR Dashboard</h1></div>
+<div class="dash-hero">
+    <div>
+        <h1>Welcome back, {{ user.get_full_name|default:user.username }}</h1>
+        <p>Here's what's happening across the organization today.</p>
+    </div>
+    <div class="dash-hero-meta"><i class="bi bi-calendar3"></i> {% now "l, d M Y" %}</div>
+</div>
 
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value">{{ total_employees }}</div><div class="stat-label">Total Employees</div></div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-blue"><i class="bi bi-people"></i></div>
+            <div><div class="stat-value">{{ total_employees }}</div><div class="stat-label">Total Employees</div></div>
+        </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value">{{ active_employees }}</div><div class="stat-label">Active Employees</div></div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon"><i class="bi bi-person-check"></i></div>
+            <div><div class="stat-value">{{ active_employees }}</div><div class="stat-label">Active Employees</div></div>
+        </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-success">{{ todays_present }}</div><div class="stat-label">Today's Present</div></div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-green"><i class="bi bi-check-circle"></i></div>
+            <div><div class="stat-value">{{ todays_present }}</div><div class="stat-label">Today's Present</div></div>
+        </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-danger">{{ todays_absent }}</div><div class="stat-label">Today's Absent</div></div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-red"><i class="bi bi-x-circle"></i></div>
+            <div><div class="stat-value">{{ todays_absent }}</div><div class="stat-label">Today's Absent</div></div>
+        </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-warning">{{ pending_leaves }}</div><div class="stat-label">Pending Leave Requests</div></div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-orange"><i class="bi bi-hourglass-split"></i></div>
+            <div><div class="stat-value">{{ pending_leaves }}</div><div class="stat-label">Pending Leave Requests</div></div>
+        </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-success">{{ approved_leaves }}</div><div class="stat-label">Approved Leaves</div></div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-green"><i class="bi bi-calendar-check"></i></div>
+            <div><div class="stat-value">{{ approved_leaves }}</div><div class="stat-label">Approved Leaves</div></div>
+        </div>
     </div>
 </div>
 

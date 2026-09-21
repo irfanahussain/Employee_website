@@ -1,20 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Team Dashboard{% endblock %}
 {% block content %}
-<div class="page-header"><h1>Team Lead Dashboard</h1></div>
+<div class="dash-hero">
+    <div>
+        <h1>Hi, {{ user.get_full_name|default:user.username }}</h1>
+        <p>Here's how your team is doing today.</p>
+    </div>
+    <div class="dash-hero-meta"><i class="bi bi-calendar3"></i> {% now "l, d M Y" %}</div>
+</div>
 
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value">{{ team_members_count }}</div><div class="stat-label">Team Members</div></div>
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-blue"><i class="bi bi-people"></i></div>
+            <div><div class="stat-value">{{ team_members_count }}</div><div class="stat-label">Team Members</div></div>
+        </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value">{{ todays_attendance.count }}</div><div class="stat-label">Today's Team Attendance</div></div>
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-green"><i class="bi bi-calendar-check"></i></div>
+            <div><div class="stat-value">{{ todays_attendance.count }}</div><div class="stat-label">Today's Team Attendance</div></div>
+        </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-warning">{{ pending_team_leaves.count }}</div><div class="stat-label">Pending Team Leave Requests</div></div>
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-orange"><i class="bi bi-hourglass-split"></i></div>
+            <div><div class="stat-value text-warning">{{ pending_team_leaves.count }}</div><div class="stat-label">Pending Team Leave Requests</div></div>
+        </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-success">{{ approved_team_leaves_count }}</div><div class="stat-label">Approved Team Leaves</div></div>
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-green"><i class="bi bi-check2-circle"></i></div>
+            <div><div class="stat-value text-success">{{ approved_team_leaves_count }}</div><div class="stat-label">Approved Team Leaves</div></div>
+        </div>
     </div>
 </div>
 

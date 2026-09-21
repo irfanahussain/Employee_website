@@ -1,46 +1,64 @@
 {% extends "base.html" %}
 {% block title %}My Dashboard{% endblock %}
 {% block content %}
-<div class="page-header"><h1>My Dashboard</h1></div>
+<div class="dash-hero">
+    <div>
+        <h1>Hi, {{ user.get_full_name|default:user.username }}</h1>
+        <p>Here's your attendance and leave snapshot for today.</p>
+    </div>
+    <div class="dash-hero-meta"><i class="bi bi-calendar3"></i> {% now "l, d M Y" %}</div>
+</div>
 
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="stat-value">
-                {% if today_record %}{{ today_record.get_status_display }}{% else %}Not marked{% endif %}
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-blue"><i class="bi bi-calendar-day"></i></div>
+            <div>
+                <div class="stat-value">
+                    {% if today_record %}{{ today_record.get_status_display }}{% else %}Not marked{% endif %}
+                </div>
+                <div class="stat-label">Today's Attendance</div>
             </div>
-            <div class="stat-label">Today's Attendance</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="stat-value">
-                {% if today_record.check_in and not today_record.check_out %}
-                    <span class="text-success">Checked In</span>
-                {% elif today_record.check_out %}
-                    <span class="text-muted">Checked Out</span>
-                {% else %}
-                    <span class="text-danger">Not Checked In</span>
-                {% endif %}
+        <div class="stat-card stat-tile">
+            <div class="stat-icon{% if today_record.check_in and not today_record.check_out %} tone-green{% elif not today_record.check_out and not today_record.check_in %} tone-red{% endif %}"><i class="bi bi-clock-history"></i></div>
+            <div>
+                <div class="stat-value">
+                    {% if today_record.check_in and not today_record.check_out %}
+                        <span class="text-success">Checked In</span>
+                    {% elif today_record.check_out %}
+                        <span class="text-muted">Checked Out</span>
+                    {% else %}
+                        <span class="text-danger">Not Checked In</span>
+                    {% endif %}
+                </div>
+                <div class="stat-label">Current Status</div>
             </div>
-            <div class="stat-label">Current Status</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-warning">{{ pending_requests.count }}</div><div class="stat-label">Pending Leave Requests</div></div>
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-orange"><i class="bi bi-hourglass-split"></i></div>
+            <div><div class="stat-value text-warning">{{ pending_requests.count }}</div><div class="stat-label">Pending Leave Requests</div></div>
+        </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="stat-value">
-                {% if not today_record.check_in %}
-                    <a href="{% url 'employeeApp:check_in' %}" class="btn btn-sm btn-primary">Check In</a>
-                {% elif not today_record.check_out %}
-                    <a href="{% url 'employeeApp:check_out' %}" class="btn btn-sm btn-outline-primary">Check Out</a>
-                {% else %}
-                    <span class="text-muted small">Done for today</span>
-                {% endif %}
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-green"><i class="bi bi-lightning-charge"></i></div>
+            <div>
+                <div class="stat-value">
+                    {% if not today_record.check_in %}
+                        <a href="{% url 'employeeApp:check_in' %}" class="btn btn-sm btn-primary">Check In</a>
+                    {% elif not today_record.check_out %}
+                        <a href="{% url 'employeeApp:check_out' %}" class="btn btn-sm btn-outline-primary">Check Out</a>
+                    {% else %}
+                        <span class="text-muted small">Done for today</span>
+                    {% endif %}
+                </div>
+                <div class="stat-label">Quick Action</div>
             </div>
-            <div class="stat-label">Quick Action</div>
         </div>
     </div>
 </div>

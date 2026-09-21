@@ -24,11 +24,36 @@
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-value">{{ totals.total_working_days }}</div><div class="stat-label">Total Records</div></div></div>
-    <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-value text-success">{{ totals.present_days }}</div><div class="stat-label">Present</div></div></div>
-    <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-value text-danger">{{ totals.absent_days }}</div><div class="stat-label">Absent</div></div></div>
-    <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-value text-info">{{ totals.leave_days }}</div><div class="stat-label">Leave</div></div></div>
-    <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-value text-warning">{{ totals.late_days }}</div><div class="stat-label">Late</div></div></div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-blue"><i class="bi bi-calendar3"></i></div>
+            <div><div class="stat-value">{{ totals.total_working_days }}</div><div class="stat-label">Total Records</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-green"><i class="bi bi-check-circle"></i></div>
+            <div><div class="stat-value text-success">{{ totals.present_days }}</div><div class="stat-label">Present</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-red"><i class="bi bi-x-circle"></i></div>
+            <div><div class="stat-value text-danger">{{ totals.absent_days }}</div><div class="stat-label">Absent</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon"><i class="bi bi-airplane"></i></div>
+            <div><div class="stat-value text-info">{{ totals.leave_days }}</div><div class="stat-label">Leave</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-orange"><i class="bi bi-clock-history"></i></div>
+            <div><div class="stat-value text-warning">{{ totals.late_days }}</div><div class="stat-label">Late</div></div>
+        </div>
+    </div>
 </div>
 
 <div class="table-card">

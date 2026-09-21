@@ -30,12 +30,44 @@
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ requests|length }}</div><div class="stat-label">Matching Requests</div></div></div>
-    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value text-success">{{ total_leave_days }}</div><div class="stat-label">Total Approved Days</div></div></div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-blue"><i class="bi bi-file-earmark-text"></i></div>
+            <div><div class="stat-value">{{ requests|length }}</div><div class="stat-label">Matching Requests</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-tile">
+            <div class="stat-icon tone-green"><i class="bi bi-calendar-check"></i></div>
+            <div><div class="stat-value text-success">{{ total_leave_days }}</div><div class="stat-label">Total Approved Days</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="table-card mb-4">
+    <h6 class="text-muted mb-3">Summary by Employee</h6>
+    <table class="table table-sm table-hover align-middle dt-table">
+        <thead><tr><th>Employee</th><th>Department</th><th class="text-end">Pending</th><th class="text-end">Approved</th><th class="text-end">Rejected</th><th class="text-end">Approved Days</th></tr></thead>
+        <tbody>
+        {% for row in employee_summary %}
+            <tr>
+                <td>{{ row.employee__full_name }}</td>
+                <td>{{ row.employee__team__department__name|default:"—" }}</td>
+                <td class="text-end text-warning">{{ row.pending }}</td>
+                <td class="text-end text-success">{{ row.approved }}</td>
+                <td class="text-end text-danger">{{ row.rejected }}</td>
+                <td class="text-end fw-semibold">{{ row.approved_days|default:0 }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="text-muted text-center py-4">No requests match these filters.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div class="table-card">
-    <table class="table table-hover align-middle">
+    <h6 class="text-muted mb-3">Requests</h6>
+    <table class="table table-hover align-middle dt-table">
         <thead><tr><th>Employee</th><th>Department</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th></tr></thead>
         <tbody>
         {% for r in requests %}

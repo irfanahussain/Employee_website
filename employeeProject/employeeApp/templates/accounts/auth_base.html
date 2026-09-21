@@ -1,74 +1,11 @@
 {% extends 'base.html' %}
-{% block extra_head %}
-<style>
-    body { background: #0b0b12; }
-    .login-page {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #0b0b12;
-        padding: 24px;
-    }
-    .login-wrap { width: 100%; max-width: 440px; }
-    .login-wrap h1 {
-        color: #f5f5f7; font-weight: 800; font-size: 2.5rem; text-align: center; margin-bottom: 0.5rem;
-    }
-    .login-wrap .subtitle { color: #9ca0ac; text-align: center; margin-bottom: 2rem; font-size: 1rem; }
-    .login-wrap .form-label { color: #d1d3da; font-weight: 500; font-size: 0.95rem; margin-bottom: 0.4rem; }
-    .login-wrap .form-control {
-        background: #16161f; border: 1px solid #2b2c38; color: #f5f5f7;
-        border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.95rem;
-    }
-    .login-wrap .form-control:focus {
-        background: #16161f; border-color: #7c7ff0; color: #f5f5f7;
-        box-shadow: 0 0 0 0.2rem rgba(124, 127, 240, 0.2);
-    }
-    .login-wrap .form-control::placeholder { color: #6b6e7a; }
-    .password-toggle-wrap { position: relative; }
-    .password-toggle-btn {
-        position: absolute; top: 0; right: 0; height: 100%;
-        border: none; background: transparent; padding: 0 1rem;
-        color: #9ca0ac; display: flex; align-items: center;
-    }
-    .password-toggle-btn:hover { color: #d1d3da; }
-    .btn-login {
-        background: #b9baf7; border: none; border-radius: 10px;
-        padding: 0.8rem; font-weight: 600; color: #16161f; font-size: 1rem;
-    }
-    .btn-login:hover { background: #a5a6f2; color: #16161f; }
-    .btn-login:disabled { opacity: 0.75; }
-    .login-wrap .form-check-label { color: #9ca0ac; font-size: 0.9rem; }
-    .login-wrap .form-check-input:checked { background-color: #7c7ff0; border-color: #7c7ff0; }
-    .invalid-feedback-block { color: #f87171; font-size: 0.82rem; margin-top: 0.3rem; }
-    .alert-danger-dark {
-        background: #2a1518; border: 1px solid #7f1d1d; color: #fca5a5;
-        border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem;
-    }
-    .alert-success-dark {
-        background: #142a1c; border: 1px solid #14532d; color: #86efac;
-        border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.9rem;
-    }
-    .role-tabs {
-        display: flex; gap: 6px; background: #16161f; border: 1px solid #2b2c38;
-        border-radius: 10px; padding: 4px; margin-bottom: 1.5rem;
-    }
-    .role-tabs button {
-        flex: 1; background: transparent; border: none; border-radius: 8px;
-        color: #9ca0ac; font-size: 0.85rem; font-weight: 600; padding: 0.5rem 0.25rem;
-        cursor: pointer; transition: background 0.15s, color 0.15s;
-    }
-    .role-tabs button.active { background: #2b2c47; color: #b9baf7; }
-    .auth-links { text-align: center; margin-top: 1.25rem; font-size: 0.9rem; color: #9ca0ac; }
-    .auth-links a { color: #b9baf7; text-decoration: none; }
-    .auth-links a:hover { text-decoration: underline; }
-    .forgot-link { display: block; text-align: right; font-size: 0.85rem; color: #9ca0ac; text-decoration: none; margin: -0.5rem 0 1rem; }
-    .forgot-link:hover { color: #b9baf7; }
-</style>
-{% endblock %}
 {% block guest_content %}
-<div class="login-page">
-    <div class="login-wrap">
+<div class="auth-page">
+    <div class="auth-brand">
+        <span class="brand-mark"><i class="bi bi-people-fill"></i></span>
+        <span>Employee Portal</span>
+    </div>
+    <div class="auth-card">
         {% block auth_content %}{% endblock %}
     </div>
 </div>
