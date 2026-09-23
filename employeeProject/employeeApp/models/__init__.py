@@ -3,6 +3,8 @@ from .employees import Employee
 from .attendance import Attendance
 from .leave import LeaveType, LeaveBalance, LeaveRequest
 from .notifications import Notification
+from .calendar import CalendarEvent
+
 
 __all__ = [
     'Department', 'Team',
@@ -10,4 +12,5 @@ __all__ = [
     'Attendance',
     'LeaveType', 'LeaveBalance', 'LeaveRequest',
     'Notification',
+    'CalendarEvent',
 ]

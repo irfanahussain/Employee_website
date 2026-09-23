@@ -45,6 +45,10 @@ urlpatterns = [
     path('leave/<int:pk>/decide/', views.decide_leave, name='decide_leave'),
     path('leave/all/', views.all_leave_requests, name='all_leave_requests'),
 
+    # Calendar
+    path('calendar/', views.calendar_view, name='calendar_view'),
+    path('calendar/add-event/', views.add_calendar_event, name='add_calendar_event'),
+
     # Notifications
     path('notifications/', views.notification_list, name='notification_list'),
     path('notifications/<int:pk>/read/', views.mark_read, name='mark_read'),

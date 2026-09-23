@@ -5,7 +5,7 @@ from employeeApp.models import Employee
 
 
 class EmployeeForm(forms.ModelForm):
-    """Used for both create and edit. On create, also provisions a login User account."""
+    
     username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
     role = forms.ChoiceField(choices=User.Role.choices, widget=forms.Select(attrs={'class': 'form-select'}))
     initial_password = forms.CharField(

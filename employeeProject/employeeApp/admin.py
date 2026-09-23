@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Department, Team, Employee, Attendance, LeaveType, LeaveBalance, LeaveRequest, Notification
+from .models import (
+    Department, Team, Employee, Attendance, LeaveType, LeaveBalance, LeaveRequest, Notification, CalendarEvent
+)
 
 
 
@@ -46,9 +48,16 @@ class LeaveBalanceAdmin(admin.ModelAdmin):
 
 @admin.register(LeaveRequest)
 class LeaveRequestAdmin(admin.ModelAdmin):
-    list_display = ('employee', 'leave_type', 'from_date', 'to_date', 'number_of_days', 'status')
+    list_display = ('employee', 'leave_type', 'from_date', 'to_date', 'number_of_days', 'lop_days', 'status')
     list_filter = ('status', 'leave_type')
     search_fields = ('employee__full_name',)
+
+
+@admin.register(CalendarEvent)
+class CalendarEventAdmin(admin.ModelAdmin):
+    list_display = ('title', 'event_type', 'start_date', 'end_date', 'created_by')
+    list_filter = ('event_type',)
+    search_fields = ('title',)
 
 
 @admin.register(Notification)

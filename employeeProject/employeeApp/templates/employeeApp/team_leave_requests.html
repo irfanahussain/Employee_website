@@ -29,12 +29,7 @@
                 <td>{{ r.to_date }}</td>
                 <td>{{ r.number_of_days }}</td>
                 <td>{{ r.reason|truncatewords:8 }}</td>
-                <td>
-                    {% if r.status == "APPROVED" %}<span class="badge bg-success">Approved</span>
-                    {% elif r.status == "REJECTED" %}<span class="badge bg-danger">Rejected</span>
-                    {% elif r.status == "CANCELLED" %}<span class="badge bg-secondary">Cancelled</span>
-                    {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
-                </td>
+                <td>{% include "employeeApp/_leave_status_badge.html" %}</td>
                 <td>
                     {% if r.status == "PENDING" %}
                     <a href="{% url 'employeeApp:decide_leave' r.pk %}" class="btn btn-sm btn-primary">Decide</a>

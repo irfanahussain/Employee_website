@@ -1,53 +1,21 @@
 {% extends "base.html" %}
-{% block title %}All Leave Requests{% endblock %}
+{% block title %}Apply for Leave{% endblock %}
 {% block content %}
-<div class="page-header"><h1>All Leave Requests</h1></div>
+<div class="page-header"><h1>Apply for Leave</h1></div>
 
-<div class="table-card">
-    <form method="get" class="row g-2 mb-3">
-        <div class="col-md-3">
-            <select name="status" class="form-select">
-                <option value="">All Status</option>
-                {% for value, label in statuses %}
-                    <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
+<div class="table-card" style="max-width:560px;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+        {% include "employeeApp/_leave_request_fields.html" %}
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+            <a href="{% url 'employeeApp:my_leave_requests' %}" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
-
-    <table class="table table-hover align-middle dt-table">
-        <thead><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Decided By</th><th class="no-sort"></th></tr></thead>
-        <tbody>
-        {% for r in page_obj %}
-            <tr>
-                <td>{{ r.employee.full_name }}</td>
-                <td>{{ r.leave_type.name }}</td>
-                <td>{{ r.from_date }}</td>
-                <td>{{ r.to_date }}</td>
-                <td>{{ r.number_of_days }}</td>
-                <td>
-                    {% if r.status == "APPROVED" %}<span class="badge bg-success">Approved</span>
-                    {% elif r.status == "REJECTED" %}<span class="badge bg-danger">Rejected</span>
-                    {% elif r.status == "CANCELLED" %}<span class="badge bg-secondary">Cancelled</span>
-                    {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
-                </td>
-                <td>{{ r.decided_by.get_full_name|default:"—" }}</td>
-                <td>
-                    {% if r.status == "PENDING" %}
-                    <a href="{% url 'employeeApp:decide_leave' r.pk %}" class="btn btn-sm btn-primary">Decide</a>
-                    {% else %}
-                    <a href="{% url 'employeeApp:decide_leave' r.pk %}" class="btn btn-sm btn-outline-secondary">Override</a>
-                    {% endif %}
-                </td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="8" class="text-muted text-center py-4">No leave requests found.</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% include "employeeApp/_pagination.html" %}
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "employeeApp/_leave_request_js.html" %}
 {% endblock %}

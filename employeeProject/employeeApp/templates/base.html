@@ -27,6 +27,9 @@
             <a href="{% url 'accounts:redirect_dashboard' %}" class="nav-link {% if 'dashboard' in request.path %}active{% endif %}">
                 <i class="bi bi-grid-1x2"></i> Dashboard
             </a>
+            <a href="{% url 'employeeApp:calendar_view' %}" class="nav-link {% if 'calendar' in request.path %}active{% endif %}">
+                <i class="bi bi-calendar3"></i> Calendar
+            </a>
             {% if user.can_manage_employees %}
             <a href="{% url 'employeeApp:department_list' %}" class="nav-link {% if 'departments' in request.path %}active{% endif %}">
                 <i class="bi bi-diagram-3"></i> Departments

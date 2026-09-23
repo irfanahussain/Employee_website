@@ -1,0 +1,5 @@
+{% if r.status == "APPROVED" %}<span class="badge bg-success"><i class="bi bi-check-circle"></i> Approved</span>
+{% elif r.status == "REJECTED" %}<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Rejected</span>
+{% elif r.status == "CANCELLED" %}<span class="badge bg-secondary"><i class="bi bi-slash-circle"></i> Cancelled</span>
+{% elif r.status == "PENDING_HR" %}<span class="badge bg-info"><i class="bi bi-hourglass-split"></i> Pending HR</span>
+{% else %}<span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pending Team Lead</span>{% endif %}

@@ -3,7 +3,10 @@
 {% block content %}
 <div class="page-header">
     <h1>My Leave</h1>
-    <a href="{% url 'employeeApp:apply_leave' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Apply for Leave</a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'employeeApp:calendar_view' %}" class="btn btn-outline-secondary"><i class="bi bi-calendar3"></i> Calendar</a>
+        <a href="{% url 'employeeApp:apply_leave' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Apply for Leave</a>
+    </div>
 </div>
 
 <div class="table-card mb-4">
@@ -23,29 +26,26 @@
 <div class="table-card">
     <h6 class="text-muted mb-3">My Requests</h6>
     <table class="table table-hover align-middle dt-table">
-        <thead><tr><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Remarks</th><th class="no-sort"></th></tr></thead>
+        <thead><tr><th>Type</th><th>From</th><th>To</th><th>Days</th><th>LOP</th><th>Handover</th><th>Status</th><th>Remarks</th><th class="no-sort"></th></tr></thead>
         <tbody>
         {% for r in page_obj %}
             <tr>
-                <td>{{ r.leave_type.name }}</td>
+                <td>{{ r.leave_type.name }}{% if r.is_half_day %} <span class="text-muted small">(Half Day)</span>{% endif %}</td>
                 <td>{{ r.from_date }}</td>
                 <td>{{ r.to_date }}</td>
                 <td>{{ r.number_of_days }}</td>
+                <td>{% if r.lop_days %}<span class="badge bg-danger">{{ r.lop_days }}</span>{% else %}—{% endif %}</td>
+                <td>{{ r.handover_employee.full_name|default:"—" }}</td>
+                <td>{% include "employeeApp/_leave_status_badge.html" %}</td>
+                <td>{{ r.hr_remarks|default:r.team_lead_remarks|default:"—" }}</td>
                 <td>
-                    {% if r.status == "APPROVED" %}<span class="badge bg-success">Approved</span>
-                    {% elif r.status == "REJECTED" %}<span class="badge bg-danger">Rejected</span>
-                    {% elif r.status == "CANCELLED" %}<span class="badge bg-secondary">Cancelled</span>
-                    {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
-                </td>
-                <td>{{ r.team_lead_remarks|default:"—" }}</td>
-                <td>
-                    {% if r.status == "PENDING" or r.status == "APPROVED" %}
+                    {% if r.is_pending or r.status == "APPROVED" %}
                     <a href="{% url 'employeeApp:cancel_leave' r.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this leave request?');">Cancel</a>
                     {% endif %}
                 </td>
             </tr>
         {% empty %}
-            <tr><td colspan="7" class="text-muted text-center py-4">You haven't applied for leave yet.</td></tr>
+            <tr><td colspan="9" class="text-muted text-center py-4">You haven't applied for leave yet.</td></tr>
         {% endfor %}
         </tbody>
     </table>

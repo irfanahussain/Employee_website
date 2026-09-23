@@ -1,16 +1,25 @@
 {% extends "base.html" %}
 {% block title %}Decide Leave Request{% endblock %}
 {% block content %}
-<div class="page-header"><h1>Decide Leave Request</h1></div>
+<div class="page-header">
+    <h1>Decide Leave Request</h1>
+    <span class="badge {% if acting_stage == 'HR' %}bg-info{% else %}bg-warning text-dark{% endif %}">
+        {% if acting_stage == 'HR' %}Deciding as HR (final approval){% else %}Deciding as Team Lead{% endif %}
+    </span>
+</div>
 
 <div class="table-card mb-4" style="max-width:560px;">
     <table class="table table-sm table-borderless mb-0">
         <tr><th style="width:160px;">Employee</th><td>{{ leave_request.employee.full_name }}</td></tr>
-        <tr><th>Leave Type</th><td>{{ leave_request.leave_type.name }}</td></tr>
+        <tr><th>Leave Type</th><td>{{ leave_request.leave_type.name }}{% if leave_request.is_half_day %} (Half Day){% endif %}</td></tr>
         <tr><th>From</th><td>{{ leave_request.from_date }}</td></tr>
         <tr><th>To</th><td>{{ leave_request.to_date }}</td></tr>
-        <tr><th>Days</th><td>{{ leave_request.number_of_days }}</td></tr>
+        <tr><th>Days</th><td>{{ leave_request.number_of_days }}{% if leave_request.lop_days %} <span class="badge bg-danger">{{ leave_request.lop_days }} LOP</span>{% endif %}</td></tr>
+        <tr><th>Handover To</th><td>{{ leave_request.handover_employee.full_name|default:"—" }}</td></tr>
         <tr><th>Reason</th><td>{{ leave_request.reason }}</td></tr>
+        {% if leave_request.team_lead_remarks %}
+        <tr><th>Team Lead Remarks</th><td>{{ leave_request.team_lead_remarks }}</td></tr>
+        {% endif %}
     </table>
 </div>
 

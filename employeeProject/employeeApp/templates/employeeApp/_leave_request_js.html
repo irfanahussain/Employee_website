@@ -1,0 +1,70 @@
+<script>
+(function () {
+    var balanceMap = JSON.parse('{{ balance_map_json|escapejs }}');
+
+    function el(id) { return document.getElementById(id); }
+
+    function computeDays() {
+        var halfDay = el('id_is_half_day');
+        var from = el('id_from_date');
+        var to = el('id_to_date');
+        if (!from || !to) { return 0; }
+        if (halfDay && halfDay.checked) { return 0.5; }
+        if (!from.value || !to.value) { return 0; }
+        var fromDate = new Date(from.value);
+        var toDate = new Date(to.value);
+        var diff = Math.round((toDate - fromDate) / 86400000) + 1;
+        return diff > 0 ? diff : 0;
+    }
+
+    function updateNotice() {
+        var leaveType = el('id_leave_type');
+        var notice = el('lop-notice');
+        var noticeText = el('lop-notice-text');
+        if (!leaveType || !notice || !noticeText) { return; }
+        var remaining = balanceMap[leaveType.value];
+        var days = computeDays();
+        if (remaining === undefined || days <= 0) { notice.classList.add('d-none'); return; }
+        if (days > remaining) {
+            var lop = (days - remaining).toFixed(1).replace(/\.0$/, '');
+            var avail = remaining.toFixed(1).replace(/\.0$/, '');
+            var reqd = days.toFixed(1).replace(/\.0$/, '');
+            noticeText.textContent = 'This leave request is for ' + reqd + ' day(s) but you only have ' + avail +
+                ' day(s) of ' + leaveType.options[leaveType.selectedIndex].text + ' available. The remaining ' +
+                lop + ' day(s) will be processed as Loss of Pay (LOP).';
+            notice.classList.remove('d-none');
+        } else {
+            notice.classList.add('d-none');
+        }
+    }
+
+    function syncHalfDay() {
+        var halfDay = el('id_is_half_day');
+        var from = el('id_from_date');
+        var to = el('id_to_date');
+        if (!halfDay || !from || !to) { return; }
+        if (halfDay.checked) {
+            if (from.value) { to.value = from.value; }
+            to.setAttribute('readonly', 'readonly');
+        } else {
+            to.removeAttribute('readonly');
+        }
+        updateNotice();
+    }
+
+    ['id_leave_type', 'id_from_date', 'id_to_date'].forEach(function (id) {
+        var field = el(id);
+        if (field) { field.addEventListener('change', updateNotice); }
+    });
+    var halfDayField = el('id_is_half_day');
+    if (halfDayField) { halfDayField.addEventListener('change', syncHalfDay); }
+    var fromField = el('id_from_date');
+    if (fromField) {
+        fromField.addEventListener('change', function () {
+            if (halfDayField && halfDayField.checked) { el('id_to_date').value = fromField.value; }
+        });
+    }
+
+    updateNotice();
+})();
+</script>

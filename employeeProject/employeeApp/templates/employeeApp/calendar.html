@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Company Calendar{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Company Calendar</h1>
+        <p class="text-muted mb-0" style="font-size:0.85rem;">Track holidays, scheduled meetings, employee leaves, and attendance anomalies.</p>
+    </div>
+    {% if has_employee %}
+    <div class="calendar-stats">
+        <span class="calendar-stat-pill">Available: {{ total_available }}</span>
+        <span class="calendar-stat-pill">Taken: {{ total_taken }}</span>
+    </div>
+    {% endif %}
+</div>
+
+<div class="table-card">
+    <div class="calendar-toolbar">
+        <div class="calendar-title"><i class="bi bi-calendar3"></i> {{ month_name }} {{ year }}</div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="calendar-nav">
+                <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-sm btn-outline-secondary" aria-label="Previous month"><i class="bi bi-chevron-left"></i></a>
+                <a href="?year={{ today.year }}&month={{ today.month }}" class="btn btn-sm btn-outline-secondary">Today</a>
+                <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-sm btn-outline-secondary" aria-label="Next month"><i class="bi bi-chevron-right"></i></a>
+            </div>
+            {% if event_form %}
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                <i class="bi bi-plus-lg"></i> Add Event
+            </button>
+            {% endif %}
+            {% if has_employee %}
+            <button type="button" class="btn btn-sm btn-primary" id="applyLeaveBtn" data-bs-toggle="modal" data-bs-target="#applyLeaveModal">
+                <i class="bi bi-plus-lg"></i> Apply for Leave
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="calendar-legend">
+        <span class="calendar-legend-item"><span class="calendar-swatch holiday"></span> Office Leave / Holiday</span>
+        <span class="calendar-legend-item"><span class="calendar-swatch office-event"></span> Office Event</span>
+        <span class="calendar-legend-item"><span class="calendar-swatch leave-1"></span> Leave (approved)</span>
+        <span class="calendar-legend-item"><span class="calendar-swatch pending-leave"></span> Leave (pending)</span>
+        <span class="calendar-legend-item"><span class="calendar-swatch lop"></span> Loss of Pay (LOP)</span>
+        <span class="calendar-legend-item"><span class="calendar-swatch meeting"></span> Scheduled Meetings</span>
+        <span class="calendar-legend-item"><span class="calendar-swatch late"></span> Late Check-in</span>
+    </div>
+
+    <div class="calendar-grid">
+        <div class="calendar-weekday">Sun</div>
+        <div class="calendar-weekday">Mon</div>
+        <div class="calendar-weekday">Tue</div>
+        <div class="calendar-weekday">Wed</div>
+        <div class="calendar-weekday">Thu</div>
+        <div class="calendar-weekday">Fri</div>
+        <div class="calendar-weekday">Sat</div>
+
+        {% for week in weeks %}
+            {% for day in week %}
+                {% if day %}
+                <div class="calendar-day {% if day.date == today %}is-today{% endif %} {% if forloop.counter0 == 0 or forloop.counter0 == 6 %}is-weekend{% endif %}"
+                     {% if has_employee %}data-date="{{ day.date|date:'Y-m-d' }}"{% endif %}>
+                    <div class="calendar-day-num">{{ day.day }}</div>
+                    {% for ev in day.events %}
+                        <span class="calendar-event-pill {{ ev.css }}" title="{{ ev.kind }}">
+                            {% if ev.time %}<i class="bi bi-clock"></i> {{ ev.time }} {% endif %}{{ ev.label }}
+                        </span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="calendar-day is-empty"></div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+{% if has_employee %}
+<!-- Apply for Leave modal -->
+<div class="modal fade" id="applyLeaveModal" tabindex="-1" aria-labelledby="applyLeaveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="applyLeaveModalLabel">Apply for Leave</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'employeeApp:apply_leave' %}" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="calendar">
+                <div class="modal-body">
+                    {% include "employeeApp/_leave_request_fields.html" with form=leave_form %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if event_form %}
+<!-- Add Calendar Event modal (Admin/HR) -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEventModalLabel">Add Calendar Entry</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'employeeApp:add_calendar_event' %}" novalidate>
+                {% csrf_token %}
+                <div class="modal-body">
+                    {% for field in event_form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add to Calendar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% if has_employee %}
+{% include "employeeApp/_leave_request_js.html" with balance_map_json=balance_map_json %}
+<script>
+    (function () {
+        document.querySelectorAll('.calendar-day[data-date]').forEach(function (cell) {
+            cell.addEventListener('click', function () {
+                var dateVal = cell.getAttribute('data-date');
+                var from = document.getElementById('id_from_date');
+                var to = document.getElementById('id_to_date');
+                if (from) { from.value = dateVal; }
+                if (to) { to.value = dateVal; }
+                var modalEl = document.getElementById('applyLeaveModal');
+                if (modalEl && window.bootstrap) {
+                    var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                }
+            });
+        });
+    })();
+</script>
+{% endif %}
+{% endblock %}
