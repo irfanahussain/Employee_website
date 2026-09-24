@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from accounts.decorators import admin_hr_required
@@ -123,22 +123,19 @@ def calendar_view(request):
     total_taken = sum((b.used for b in balances), 0)
 
     leave_form = None
-    event_form = None
     if employee:
         from employeeApp.forms import LeaveRequestForm
         leave_form = LeaveRequestForm(employee=employee)
         balance_map = {str(b.leave_type_id): float(b.remaining) for b in balances}
     else:
         balance_map = {}
-    if request.user.can_manage_employees():
-        event_form = CalendarEventForm()
 
     context = {
         'year': year, 'month': month, 'month_name': first_day.strftime('%B'),
         'weeks': weeks, 'today': today,
         'prev_year': prev_month.year, 'prev_month': prev_month.month,
         'next_year': next_month.year, 'next_month': next_month.month,
-        'leave_form': leave_form, 'event_form': event_form,
+        'leave_form': leave_form,
         'balance_map_json': json.dumps(balance_map),
         'balances': balances, 'total_available': total_available, 'total_taken': total_taken,
         'has_employee': employee is not None,
@@ -147,14 +144,31 @@ def calendar_view(request):
 
 
 @admin_hr_required
-def add_calendar_event(request):
+def calendar_event_list(request):
+    events = CalendarEvent.objects.all().order_by('-start_date')
+    return render(request, 'employeeApp/calendar_event_list.html', {'events': events})
+
+
+@admin_hr_required
+def calendar_event_form_view(request, pk=None):
+    event = get_object_or_404(CalendarEvent, pk=pk) if pk else None
     if request.method == 'POST':
-        form = CalendarEventForm(request.POST)
+        form = CalendarEventForm(request.POST, instance=event)
         if form.is_valid():
-            event = form.save(commit=False)
-            event.created_by = request.user
-            event.save()
-            messages.success(request, "Calendar entry added.")
-        else:
-            messages.error(request, "Couldn't add that calendar entry — please check the form and try again.")
-    return redirect('employeeApp:calendar_view')
+            saved_event = form.save(commit=False)
+            if not pk:
+                saved_event.created_by = request.user
+            saved_event.save()
+            messages.success(request, f"Calendar entry {'updated' if pk else 'added'} successfully.")
+            return redirect('employeeApp:calendar_event_list')
+    else:
+        form = CalendarEventForm(instance=event)
+    return render(request, 'employeeApp/calendar_event_form.html', {'form': form, 'event': event})
+
+
+@admin_hr_required
+def calendar_event_delete(request, pk):
+    event = get_object_or_404(CalendarEvent, pk=pk)
+    event.delete()
+    messages.success(request, "Calendar entry removed.")
+    return redirect('employeeApp:calendar_event_list')

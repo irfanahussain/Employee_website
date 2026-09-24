@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Add Event{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Company Events</h1>
+    <a href="{% url 'employeeApp:calendar_event_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Event</a>
+</div>
+
+<div class="table-card">
+    <table class="table table-hover align-middle dt-table">
+        <thead><tr><th>Title</th><th>Type</th><th>Start Date</th><th>End Date</th><th>Time</th><th class="no-sort"></th></tr></thead>
+        <tbody>
+        {% for ev in events %}
+            <tr>
+                <td>{{ ev.title }}</td>
+                <td>
+                    {% if ev.event_type == "HOLIDAY" %}<span class="badge" style="background:var(--tile-violet-bg);color:var(--tile-violet-fg);">Office Leave / Holiday</span>
+                    {% elif ev.event_type == "MEETING" %}<span class="badge" style="background:var(--tile-blue-bg);color:var(--tile-blue-fg);">Scheduled Meeting</span>
+                    {% else %}<span class="badge" style="background:#fde7ea;color:#b3325a;">Office Event</span>{% endif %}
+                </td>
+                <td>{{ ev.start_date }}</td>
+                <td>{{ ev.end_date }}</td>
+                <td>{{ ev.time|default:"—" }}</td>
+                <td class="text-nowrap">
+                    <a href="{% url 'employeeApp:calendar_event_edit' ev.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a href="{% url 'employeeApp:calendar_event_delete' ev.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this event from the calendar?');">Delete</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="text-muted text-center py-4">No holidays, events, or meetings added yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

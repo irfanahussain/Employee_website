@@ -1,26 +1,14 @@
 {% extends "base.html" %}
-{% block title %}My Leave{% endblock %}
+{% block title %}Leave Requests{% endblock %}
 {% block content %}
 <div class="page-header">
-    <h1>My Leave</h1>
+    <h1>Leave Requests</h1>
     <div class="d-flex gap-2">
         <a href="{% url 'employeeApp:calendar_view' %}" class="btn btn-outline-secondary"><i class="bi bi-calendar3"></i> Calendar</a>
-        <a href="{% url 'employeeApp:apply_leave' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Apply for Leave</a>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#applyLeaveModal">
+            <i class="bi bi-plus-lg"></i> Apply for Leave
+        </button>
     </div>
-</div>
-
-<div class="table-card mb-4">
-    <h6 class="text-muted mb-3">Leave Balance</h6>
-    <table class="table table-sm mb-0">
-        <thead><tr><th>Type</th><th class="text-end">Allocated</th><th class="text-end">Used</th><th class="text-end">Remaining</th></tr></thead>
-        <tbody>
-        {% for b in balances %}
-            <tr><td>{{ b.leave_type.name }}</td><td class="text-end">{{ b.allocated }}</td><td class="text-end">{{ b.used }}</td><td class="text-end fw-semibold">{{ b.remaining }}</td></tr>
-        {% empty %}
-            <tr><td colspan="4" class="text-muted">No leave balance set up yet.</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
 </div>
 
 <div class="table-card">
@@ -51,4 +39,30 @@
     </table>
     {% include "employeeApp/_pagination.html" %}
 </div>
+
+<!-- Apply for Leave modal -->
+<div class="modal fade" id="applyLeaveModal" tabindex="-1" aria-labelledby="applyLeaveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="applyLeaveModalLabel">Apply for Leave</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'employeeApp:apply_leave' %}" novalidate>
+                {% csrf_token %}
+                <div class="modal-body">
+                    {% include "employeeApp/_leave_request_fields.html" with form=leave_form %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "employeeApp/_leave_request_js.html" with balance_map_json=balance_map_json %}
 {% endblock %}

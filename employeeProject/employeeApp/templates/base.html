@@ -48,6 +48,12 @@
             <a href="{% url 'employeeApp:leave_type_list' %}" class="nav-link {% if 'leave-types' in request.path %}active{% endif %}">
                 <i class="bi bi-tags"></i> Leave Types
             </a>
+            <a href="{% url 'employeeApp:leave_balance_list' %}" class="nav-link {% if 'leave-balances' in request.path %}active{% endif %}">
+                <i class="bi bi-wallet2"></i> Leave Balances
+            </a>
+            <a href="{% url 'employeeApp:calendar_event_list' %}" class="nav-link {% if 'calendar-events' in request.path %}active{% endif %}">
+                <i class="bi bi-calendar-event"></i> Add Event
+            </a>
             <a href="{% url 'employeeApp:all_leave_requests' %}" class="nav-link {% if 'leave/all' in request.path %}active{% endif %}">
                 <i class="bi bi-calendar-week"></i> All Leave Requests
             </a>
@@ -56,11 +62,7 @@
                 <i class="bi bi-calendar-week"></i> Team Leave Requests
             </a>
             {% endif %}
-            {% if user.employee_profile %}
-            <a href="{% url 'employeeApp:my_leave_requests' %}" class="nav-link {% if 'leave/my' in request.path or 'leave/apply' in request.path %}active{% endif %}">
-                <i class="bi bi-calendar-plus"></i> My Leave
-            </a>
-            {% endif %}
+            
             <a href="{% url 'employeeApp:attendance_report' %}" class="nav-link {% if 'reports' in request.path %}active{% endif %}">
                 <i class="bi bi-file-earmark-bar-graph"></i> Reports
             </a>
@@ -125,11 +127,7 @@
 <script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive@2.5.1/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.5.1/js/responsive.bootstrap5.min.js"></script>
 <script>
-    // Any table marked class="dt-table" gets search, sort, pagination and a
-    // page-length control for free. Server-side filter forms (department,
-    // status, date range, etc.) keep working as-is; DataTables only enhances
-    // the rows already rendered on the page. Columns marked class="no-sort"
-    // (action buttons, checkboxes) are excluded from sorting.
+    
     (function () {
         if (typeof $ === 'undefined' || !$.fn.DataTable) { return; }
         $('.dt-table').each(function () {

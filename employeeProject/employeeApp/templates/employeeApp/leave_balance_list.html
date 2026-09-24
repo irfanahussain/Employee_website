@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Leave Balances{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Leave Balances</h1>
+    <a href="{% url 'employeeApp:leave_balance_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Set Leave Balance</a>
+</div>
+
+<div class="table-card">
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="year" class="form-select" onchange="this.form.submit()">
+                <option value="">All Years</option>
+                {% for y in years %}
+                    <option value="{{ y }}" {% if selected_year == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <table class="table table-hover align-middle dt-table">
+        <thead><tr><th>Employee</th><th>Leave Type</th><th>Year</th><th class="text-end">Allocated</th><th class="text-end">Used</th><th class="text-end">Remaining</th><th class="no-sort"></th></tr></thead>
+        <tbody>
+        {% for b in balances %}
+            <tr>
+                <td>{{ b.employee.full_name }}</td>
+                <td>{{ b.leave_type.name }}</td>
+                <td>{{ b.year }}</td>
+                <td class="text-end">{{ b.allocated }}</td>
+                <td class="text-end">{{ b.used }}</td>
+                <td class="text-end fw-semibold">{{ b.remaining }}</td>
+                <td class="text-nowrap">
+                    <a href="{% url 'employeeApp:leave_balance_edit' b.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a href="{% url 'employeeApp:leave_balance_delete' b.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this leave balance?');">Delete</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7" class="text-muted text-center py-4">No leave balances set up yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
