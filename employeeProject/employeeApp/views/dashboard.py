@@ -7,7 +7,7 @@ from employeeApp.models import Attendance
 from employeeApp.models import LeaveRequest, LeaveBalance
 from employeeApp.models import Department
 from employeeApp.utils import require_own_employee
-
+from employeeApp.models import CalendarEvent
 
 @admin_hr_required
 def admin_hr_dashboard(request):
@@ -26,6 +26,10 @@ def admin_hr_dashboard(request):
     for row in monthly_summary:
         status_counts[row['status']] = status_counts.get(row['status'], 0) + 1
 
+    recent_leave_requests = LeaveRequest.objects.select_related('employee', 'leave_type') \
+        .order_by('-created_at')[:5]
+    upcoming_events = CalendarEvent.objects.filter(start_date__gte=today).order_by('start_date')[:5]
+
     return render(request, 'employeeApp/admin_hr_dashboard.html', {
         'total_employees': total_employees,
         'active_employees': active_employees,
@@ -35,6 +39,8 @@ def admin_hr_dashboard(request):
         'approved_leaves': approved_leaves,
         'dept_counts': dept_counts,
         'status_counts': status_counts,
+        'recent_leave_requests': recent_leave_requests,
+        'upcoming_events': upcoming_events,
     })
 
 
